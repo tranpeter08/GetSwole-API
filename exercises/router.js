@@ -10,6 +10,7 @@ const router = express.Router({mergeParams: true});
 router.post('/', jwtAuth, (req, res) => {
   const {exerciseName} = req.body;
   const {workoutId} = req.params;
+  let exerciseRes;
   return Workout
     .findById(workoutId)
     .populate('exercises')
@@ -32,6 +33,7 @@ router.post('/', jwtAuth, (req, res) => {
         .create(req.body);
     })
     .then(newExercise => {
+      exerciseRes = newExercise;
       return Workout
         .findById(workoutId)
         .then(workout => {
@@ -41,7 +43,7 @@ router.post('/', jwtAuth, (req, res) => {
         });
     })
     .then(workout => {
-      return res.status(201).json(workout);
+      return res.status(201).json(exerciseRes);
     })
     .catch(err => {
       if(err.reason === 'validationError'){
