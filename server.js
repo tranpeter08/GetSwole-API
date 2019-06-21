@@ -30,6 +30,10 @@ app.use(cors(corsOptions));
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
+app.get('/', (req, res) => {
+  return res.send({message: 'hello world'});
+})
+
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/users/:userId/workouts', workoutsRouter);
