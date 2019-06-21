@@ -112,11 +112,14 @@ router.get('/profile/:userId/', jwtAuth, (req, res) => {
     .findOne({userId: req.params.userId})
     .then(profile => {
       if (!profile) {
-        createError('validationError', 'profile not found', 404);
+        return createError('validationError', 'profile not found', 404);
       }
       return res.status(200).json(profile);
     })
     .catch(err => {
+      if (err.name === 'CastError') {
+        return res.status(404).json({message: 'Profile not found.'});
+      }
       return handleError(err, res)
     })
 })
