@@ -9,6 +9,10 @@ const { createError, handleError, sendRes } = require('../utils');
 
 const router = express.Router();
 
+router.get('/', (req, res) => {
+  return res.send({message: 'hello world'});
+})
+
 router.post('/upload', (req, res) => {
   const {image} = req.body;
 
