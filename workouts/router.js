@@ -8,10 +8,11 @@ const { createError, handleError, sendRes} = require('../utils');
 
 const router = express.Router({mergeParams: true});
 
-router.post('/', jwtAuth,(req, res) => {
+router.post('/', jwtAuth, (req, res) => {
   const {workoutName} = req.body;
   const _workoutName = workoutName.trim();
   const {userId} = req.params;
+  let workoutRes;
   return Profile
     .findOne({userId})
     .populate('workouts')
@@ -19,27 +20,30 @@ router.post('/', jwtAuth,(req, res) => {
       let result = user.workouts.find(workout => {
         return workout.workoutName === _workoutName;
       });
-      if(result){
+
+      if (result) {
         return createError(
           'validationError', 
           `Workout "${_workoutName}" already exists for this user`,
           400
         );
       };
+
       return Workout
         .create({workoutName: _workoutName});
     })
     .then(newWorkout => {
+      workoutRes = newWorkout;
       return Profile
         .findOne({userId})
         .then(profile => {
           profile.workouts.push(newWorkout._id);
           profile.save();
-          return profile
+          return profile;
         })
     })
     .then(profile => {
-      return res.status(201).json(profile.serialize());
+      return res.status(201).json(workoutRes);
     })
     .catch(err => {
       console.error('create workout error===>\n', err)

@@ -20,12 +20,10 @@ router.post('/login',(req, res, next)=> {
   passport.authenticate('local', {session: false}, (err, user, info) => {
     
     if (err) {
-      console.log('passport error: \n', err)
       return next(err)
     }
     
     if (info) {
-      console.log('passport info: \n', info)
       return res.status(401).json(info)
     }
 
