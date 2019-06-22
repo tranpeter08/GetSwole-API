@@ -4,10 +4,11 @@ const { Workout } = require('../workouts/model');
 const { Exercise } = require('./model');
 const { createError, handleError, sendRes } = require('../utils');
 const { jwtAuth } = require('../auth');
+const {validateExercise} = require('./validate');
 
 const router = express.Router({mergeParams: true});
 
-router.post('/', jwtAuth, (req, res) => {
+router.post('/', validateExercise, jwtAuth, (req, res) => {
   const {exerciseName} = req.body;
   const {workoutId} = req.params;
   let exerciseRes;
@@ -73,7 +74,7 @@ router.get('/:exerciseId', jwtAuth, (req, res) => {
     });
 });
 
-router.put('/:exerciseId', jwtAuth, (req, res) => {
+router.put('/:exerciseId', validateExercise, jwtAuth, (req, res) => {
   const { exerciseName } = req.body;
   const {workoutId, exerciseId}  = req.params;
 
