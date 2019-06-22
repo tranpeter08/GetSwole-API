@@ -20,18 +20,14 @@ router.get('/', jwtAuth, (req, res, next) => {
     app_key,
   };
 
-  console.log('params', req.url.split('?')[1])
-
-  const searchQ = queryStr(params);
-
-  console.log('searchQ', searchQ)
+  const searchQ = queryStr(params) + '&' + req.url.split('?')[1];
 
   const options = {
     json: true
   };
 
   request.get(
-    RECIPES_ROOT_URL + '?' + searchQ + '&' + req.url.split('?')[1],
+    RECIPES_ROOT_URL + '?' + searchQ,
     options,
     (err, resp, body) => {
       if (err) {
