@@ -14,38 +14,38 @@ const app_id = config.EDAMAM_RECIPES_ID;
 const app_key = config.EDAMAM_RECIPES_KEY;
 
 router.get('/', jwtAuth, (req, res, next) => {
-  // const params = {
-  //   ...req.query,
-  //   app_id,
-  //   app_key,
-  // };
+  const params = {
+    q: 'eggs',
+    app_id,
+    app_key,
+  };
 
-  // const searchQ = queryStr(params);
+  const searchQ = queryStr(params);
 
-  // const options = {
-  //   json: true
-  // };
+  const options = {
+    json: true
+  };
 
-  // request.get(
-  //   RECIPES_ROOT_URL + '?' + searchQ,
-  //   options,
-  //   (err, resp, body) => {
-  //     if (err) {
-  //       console.log('EDAMAM ERROR \n', err);
-  //       return res.status(500).send({message: 'Internal Server Error'});
-  //     };
+  request.get(
+    RECIPES_ROOT_URL + '?' + searchQ,
+    options,
+    (err, resp, body) => {
+      if (err) {
+        console.log('EDAMAM ERROR \n', err);
+        return res.status(500).send({message: 'Internal Server Error'});
+      };
 
-  //     if (resp.statusCode !== 200) {
-  //       return next(resp);
-  //     };
+      if (resp.statusCode !== 200) {
+        return next(resp);
+      };
 
-  //     const {params: p, ...data} = body;
+      const {params: p, ...data} = body;
 
-  //     return res.status(resp.statusCode).json(data);
-  //   }
-  // )
+      return res.status(resp.statusCode).json(data);
+    }
+  )
 
-  return res.send({message: 'received'})
+  // return res.send({message: 'received'})
 })
 
 router.get('/:username', jwtAuth, (req, res) => {
