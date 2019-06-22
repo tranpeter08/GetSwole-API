@@ -59,7 +59,11 @@ router.get('/', jwtAuth, (req, res) => {
       return res.status(200).json(user.workouts);
     })
     .catch(err => {
-      return res.status(500).json({message: 'Internal server error.'});
+      console.error('GET WORKOUTS ERROR:', err)
+      return res.status(500).json({
+        message: 'Internal server error.',
+        error: err
+      });
     });
 })
 
