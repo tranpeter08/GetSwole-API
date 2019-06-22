@@ -14,21 +14,24 @@ const app_id = config.EDAMAM_RECIPES_ID;
 const app_key = config.EDAMAM_RECIPES_KEY;
 
 router.get('/', jwtAuth, (req, res, next) => {
-  console.log('req query', req.query)
+  
   const params = {
-    q: 'banana',
     app_id,
     app_key,
   };
 
+  console.log('params', req.url.split('?')[1])
+
   const searchQ = queryStr(params);
+
+  console.log('searchQ', searchQ)
 
   const options = {
     json: true
   };
 
   request.get(
-    RECIPES_ROOT_URL + '?' + searchQ,
+    RECIPES_ROOT_URL + '?' + searchQ + '&' + req.url.split('?')[1],
     options,
     (err, resp, body) => {
       if (err) {

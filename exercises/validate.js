@@ -1,6 +1,6 @@
 'use strict';
 
-function validateExercise(req, res, next) {
+exports.validateExercise = function(req, res, next) {
   const {resistUnit} = req.body;
 
   const correctUnits = ['lb', 'kg'];
@@ -11,5 +11,3 @@ function validateExercise(req, res, next) {
 
   next();
 }
-
-module.exports = {validateExercise};
