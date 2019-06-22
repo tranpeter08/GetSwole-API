@@ -59,6 +59,9 @@ router.get('/', jwtAuth, (req, res) => {
       return res.status(200).json(user.workouts);
     })
     .catch(err => {
+      if (err.name === 'CastError') {
+        return res.status(404).json({message: 'User not found.'})
+      }
       console.error('GET WORKOUTS ERROR:', err)
       return res.status(500).json({
         message: 'Internal server error.',
