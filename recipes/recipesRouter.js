@@ -29,10 +29,10 @@ router.get('/', jwtAuth, (req, res, next) => {
   request.get(
     RECIPES_ROOT_URL + '?' + searchQ,
     options,
-    (err, resp, body) => {
-      if (err) {
-        console.log('EDAMAM ERROR \n', err);
-        return res.status(500).send({message: 'Internal Server Error'});
+    (error, resp, body) => {
+      if (error) {
+        console.log('EDAMAM ERROR \n', error);
+        return res.status(500).json({message: 'Internal Server Error', error});
       };
 
       if (resp.statusCode !== 200) {
@@ -43,9 +43,8 @@ router.get('/', jwtAuth, (req, res, next) => {
 
       return res.status(resp.statusCode).json(data);
     }
-  )
+  );
 
-  // return res.send({message: 'received'})
 })
 
 router.get('/:username', jwtAuth, (req, res) => {
