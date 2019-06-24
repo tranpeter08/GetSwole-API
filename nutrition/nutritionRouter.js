@@ -6,7 +6,7 @@ const { jwtAuth } = require('../auth');
 const router = express.Router({mergeParams: true});
 
 let links;
-const NUTRIENT_ROOT_URL = 'https://api.edamam.com/api/food-database/parser';
+const NUTRIENT_ROOT_URL = 'https://api.edamam.com/api/food-database';
 
 router.get('/', jwtAuth, (req, res, next) => {
   const {ingr} = req.query;
@@ -23,7 +23,7 @@ router.get('/', jwtAuth, (req, res, next) => {
   };
 
   request.get(
-    NUTRIENT_ROOT_URL, 
+    NUTRIENT_ROOT_URL + '/parser', 
     options,
     (err, resp, body) => {
 
@@ -58,7 +58,7 @@ router.post('/', jwtAuth,(req, res, next) => {
   };
   
   request.post(
-    NUTRIENT_ROOT_URL + 'nutrients',
+    NUTRIENT_ROOT_URL + '/nutrients',
     options,
     (err, resp, body) => {
 
