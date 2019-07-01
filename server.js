@@ -47,50 +47,55 @@ app.use('*', (req, res) => {
 
 let server;
 
-// function runServer(databaseUrl, port = PORT) {
-  // return new Promise((resolve, reject) => {
-  //   mongoose.connect(databaseUrl, {useNewUrlParser: true}, error => {
-  //     if (error) {
-  //       return reject(error);
-  //     };
+const options = {
+  createIndexes: true,
+  useNewUrlParser: true
+}
 
-  //     server = app.listen(port, () => {
-  //       console.log(`App is listening on port: ${port}`);
-  //       resolve();
-  //     })
-  //     .on('error', error => {
-  //       mongoose.disconnect();
-  //       reject(error);
-  //     });
-  //   });
-  // });
-// };
+function runServer(databaseUrl, port = PORT) {
+  return new Promise((resolve, reject) => {
+    mongoose.connect(databaseUrl, options, error => {
+      if (error) {
+        return reject(error);
+      };
 
-// const closeServer = () => {
-//   return mongoose.disconnect()
-//     .then(() => {
-//       return new Promise((resolve, reject) => {
-//         console.log('Closing server...');
-//         server.close(error => {
-//           if (error) {
-//             reject(error);
-//           };
+      server = app.listen(port, () => {
+        console.log(`App is listening on port: ${port}`);
+        resolve();
+      })
+      .on('error', error => {
+        mongoose.disconnect();
+        reject(error);
+      });
+    });
+  });
+};
 
-//           resolve();
-//         });
-//       });
-//     });
-// };
+const closeServer = () => {
+  return mongoose.disconnect()
+    .then(() => {
+      return new Promise((resolve, reject) => {
+        console.log('Closing server...');
+        server.close(error => {
+          if (error) {
+            reject(error);
+          };
 
-// if (require.main === module) {
-//   runServer(DATABASE_URL)
-//     .catch(error => console.error(error));
-// };
+          resolve();
+        });
+      });
+    });
+};
 
-app.listen(DATABASE_URL, () => {
-  console.log(`App is listening on port: ${PORT}`);
-}).on('error', error => {
-  console.error(error);
-})
+if (require.main === module) {
+  runServer(DATABASE_URL)
+    .catch(error => console.error(error));
+};
 
-module.exports = { app };
+// app.listen(DATABASE_URL, () => {
+//   console.log(`App is listening on port: ${PORT}`);
+// }).on('error', error => {
+//   console.error(error);
+// })
+
+module.exports = { app, runServer, closeServer };
