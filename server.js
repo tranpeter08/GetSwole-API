@@ -44,15 +44,43 @@ app.use('/recipes', recipesRouter);
 let server;
 
 const runServer = (databaseUrl, port = PORT) => {
+  return new Promise((resolve, reject) => {
+    mongoose.connect(databaseUrl, error => {
+      if (error) {
+        return reject(error);
+      };
 
-}
+      server = app.listen(port, () => {
+        console.log(`App is listening on port: ${port}`);
+        revolve();
+      })
+      .on('error', error => {
+        mongoose.disconnect();
+        reject(error);
+      });
+    });
+  });
+};
 
-app.listen(PORT, () => {
-  console.log(`App is listening on port: ${PORT}`);
-  mongoose.connect(
-    DATABASE_URL, 
-    {useNewUrlParser: true, useCreateIndex: true}
-  );
-});
+const closeServer = () => {
+  return mongoose.disconnect()
+    .then(() => {
+      return new Promise((resolve, reject) => {
+        console.log('Closing server...');
+        server.close(error => {
+          if (error) {
+            reject(error);
+          };
 
-module.exports = { app };
+          resolve();
+        });
+      });
+    });
+};
+
+if (require.main === module) {
+  runServer(DATABASE_URL)
+    .catch(error => console.error(error));
+};
+
+module.exports = { app, runServer, closeServer };
