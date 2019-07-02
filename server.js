@@ -48,9 +48,9 @@ app.use('*', (req, res) => {
 let server;
 
 const options = {
-  createIndexes: true,
-  useNewUrlParser: true
-}
+  useNewUrlParser: true, 
+  useCreateIndex: true
+};
 
 function runServer(databaseUrl, port = PORT) {
   return new Promise((resolve, reject) => {

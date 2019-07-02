@@ -2,16 +2,16 @@
 const {Strategy: LocalStrategy} = require('passport-local');
 const {Strategy: JwtStrategy, ExtractJwt} = require('passport-jwt');
 
-const {User} = require('../users/model')
+const {User} = require('../users/model');
 
-const {JWT_SECRET, JWT_EXPIRY} = require('../config')
+const {JWT_SECRET, JWT_EXPIRY} = require('../config');
 
 const localStrategy = new LocalStrategy((username, password, done) => {
   let user;
   User.findOne({username})
     .then(_user => {
       user = _user;
-      if(!user) {
+      if (!user) {
         return Promise.reject({
           reason: 'LoginError',
           message: `* No account associated with that username`,
@@ -21,7 +21,7 @@ const localStrategy = new LocalStrategy((username, password, done) => {
       return user.validatePassword(password);
     })
     .then(isValid => {
-      if(!isValid) {
+      if (!isValid) {
         return Promise.reject({
           reason: 'LoginError',
           message: '* Incorrect password or username',
@@ -31,8 +31,8 @@ const localStrategy = new LocalStrategy((username, password, done) => {
       return done(null, user);
     })
     .catch(err => {
-      if(err.reason === 'LoginError') {
-        console.error('ERROR ===>\n', err)
+      if (err.reason === 'LoginError') {
+        console.error('LOGIN ERROR\n', err)
         return done(null, false, err);
       }
       return done(err, false);
