@@ -105,5 +105,4 @@ describe('Exercise endpoints', function() {
     });
   });
 
-
 });

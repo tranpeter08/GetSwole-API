@@ -1,13 +1,21 @@
 'use strict';
 
 exports.validateExercise = function(req, res, next) {
-  const {resistUnit} = req.body;
+  const {resistUnit, exerciseName} = req.body;
 
   const correctUnits = ['lb', 'kg', 'other'];
 
-  if (!correctUnits.includes(resistUnit)) {
-    return res.status(400).json({message: 'Incorrect resistance unit'});
-  }
+  if (!exerciseName) {
+    return res.status(400).json({message: 'Exercise name required'});
+  };
 
-  next();
+  if (exerciseName.trim() === '') {
+    return res.status(400).json({message: 'Exercise name cannot be empty'});
+  };
+
+  if ('resistUnit' in req.body && !correctUnits.includes(resistUnit)) {
+    return res.status(400).json({message: 'Incorrect resistance unit'});
+  };
+
+  return next();
 }

@@ -1,177 +1,100 @@
 'use strict';
 const express = require('express');
 const {jwtAuth} = require('../auth');
-const { Profile } = require('../users/model');
 const { Workout } = require('./model');
 const { Exercise } = require('../exercises/model');
 const { createError, handleError, sendRes} = require('../utils');
+const {validateWorkout} = require('./validate');
+const {userExist} = require('../users/validate');
+const mongoose = require('mongoose')
 
 const router = express.Router({mergeParams: true});
 
-router.post('/', jwtAuth, (req, res) => {
+router.post('/', jwtAuth, userExist, validateWorkout, (req, res) => {
   const {workoutName} = req.body;
-
-  if (!workoutName) {
-    return res.status(400).json({message: 'Workout name is required'});
-  };
-
-  const _workoutName = workoutName.trim();
   const {userId} = req.params;
 
-  let workoutRes;
-
-  return Profile
-    .findOne({userId})
-    .populate('workouts')
-    .then(user => {
-      let result = user.workouts.find(workout => {
-        return workout.workoutName === _workoutName;
-      });
-
-      if (result) {
+  return Workout
+    .find({userId, workoutName})
+    .countDocuments()
+    .then(count => {
+      if (count > 0) {
         return createError(
-          'validationError', 
-          `Workout "${_workoutName}" already exists for this user`,
-          400
+          400, 
+          `Workout "${workoutName}" already exists`, 
+          'validationError'
         );
       };
 
       return Workout
-        .create({workoutName: _workoutName});
+        .create({workoutName: workoutName.trim(), userId});
     })
-    .then(newWorkout => {
-      workoutRes = newWorkout;
-      return Profile
-        .findOne({userId})
-        .then(profile => {
-          profile.workouts.push(newWorkout._id);
-          profile.save();
-          return profile;
-        })
-    })
-    .then(profile => {
-      return res.status(201).json(workoutRes);
-    })
+    .then(workout => res.status(201).json(workout))
     .catch(err => {
-      console.error('create workout error===>\n', err)
-      return handleError(err, res);
+      return handleError(res, err);
     });
 });
 
 router.get('/', jwtAuth, (req, res) => {
-  return Profile
-    .findOne({userId: req.params.userId})
-    .populate('workouts')
-    .then(user => {
-      return res.status(200).json(user.workouts);
-    })
-    .catch(err => {
-      if (err.name === 'CastError') {
-        return res.status(404).json({message: 'User not found.'})
-      }
-      console.error('GET WORKOUTS ERROR:\n', err)
-      return res.status(500).json({
-        message: 'Internal server error.',
-        error: err
-      });
-    });
-})
+  const {userId} = req.params;
 
-router.get('/:workoutId', jwtAuth, (req, res) => {
   return Workout
-    .findById(req.params.workoutId)
-    .populate('exercises')
-    .then(workout => {
-      if (!workout) {
-        return createError('validationError', 'workout not found', 404);
-      }
-      return res.status(200).json(workout);
-    })
+    .find({userId}, '-userId')
+    .then(workouts => res.status(200).json(workouts))
     .catch(err => {
-      console.log(err);
-      return handleError(err, res);
+      console.log('GET WORKOUTS ERROR:', err);
+      return res.status(500).json({
+        error: err,
+        message: 'Internal server error'});
     });
 });
 
-router.put('/:workoutId', jwtAuth, (req, res) =>{
-  const { workoutName } = req.body;
+router.put('/:workoutId', jwtAuth, userExist, validateWorkout, (req, res) => {
   const {userId, workoutId} = req.params;
-  if(!workoutName || workoutName && workoutName.trim() === ""){
-    return res.status(400).json({message: 'workout field cannot be empty'});
-  }
-  return Profile
-    .findOne({userId})
-    .populate('workouts')
-    .then(user => {
-      let result = user.workouts.find(workout => {
-        return workout.workoutName === workoutName;
-      });
-      if (result && result._id.toString() !== workoutId){
-        return createError(
-          'validationError', 
-          `Workout "${workoutName}" already exists for this user`,
-          400
-        );
+  const {workoutName} = req.body;
+
+  return Workout
+    .find({userId})
+    .then(results => {
+      const sameName = results.find(item => 
+        item._id !== workoutId && item.workoutName === workoutName
+      );
+
+      if (sameName) {
+        return createError(400, `Workout "${workoutName}" already exists.`)
       };
-      return Workout
-        .findByIdAndUpdate(workoutId, {workoutName})
-    }) 
-    .then(result => {
-      if (!result) {
-        return Promise.reject({
-          reason: 'validationError',
-          message: 'workout not found',
-          code: 404
-        });
-      }
-      return res.status(200).json({message: 'workout updated successfully!'});
-    })
-    .catch(err => {
-      console.error('workout edit error\n', err)
-      if(err.reason === 'validationError'){
-        return res.status(err.code).json({message: err.message});
-      }
-      return res.status(500).json({message: 'Internal server error.'});
-    });
-});
 
-router.delete('/:workoutId', jwtAuth, (req, res) => {
-  const {workoutId, userId} = req.params;
-
-  return Profile
-    .findOne({userId})
-    .then(user => {
-      console.log('=== USER WORKOUTS ===\n', user.workouts);
-      user.workouts.remove(workoutId);
-      user.save();
-      return user;
-    })
-    .then(user => {
-      console.log('=== USER WORKOUT w REMOVED ====\n',user.workouts)
       return Workout
-        .findById(workoutId)
+        .findByIdAndUpdate(workoutId, req.body)
     })
     .then(workout => {
       if (!workout) {
-        return createError('validationError', 'workout not found', 404);
-      }
-      const { exercises } = workout;
-      return Exercise
-        .deleteMany({_id: {$in: exercises}});
+        return createError(404, 'Workout not found', 'validationError');
+      };
+
+      return res.status(200).json({message: 'Workout updated'});
     })
-    .then(result => {
-      console.log('=== EXERCISE DELETE RESULT ===\n', result);
-      return Workout
-        .findByIdAndDelete(workoutId);
-    })
-    .then(result => {
-      console.log('=== WORKOUT DELETE RESULT ===\n', result);
-      return res.status(202).json({message: `Workout deleted`});
-    })
-    .catch(err => {
-      console.error('=== ERROR ===\n', err);
-      return handleError(err, res);
+    .catch(error => {
+      return handleError(res, error, 'UPDATE WORKOUT ERROR')
     });
 });
+
+router.delete('/:workoutId', jwtAuth, userExist, (req, res, next) => {
+  const {workoutId} = req.params;
+
+  return Workout
+    .findByIdAndDelete(workoutId)
+    .then(deleted => {
+      if (!deleted) {
+        return createError(404, 'Workout not found', 'validationError');
+      };
+
+      return Exercise.deleteMany({workoutId});
+    })
+    .then(() => res.status(200).json({message: 'Workout deleted'}))
+    .catch(error => {
+      return handleError(res, error, 'DELETE WORKOUT ERROR');
+    });
+  });
 
 module.exports = { router };

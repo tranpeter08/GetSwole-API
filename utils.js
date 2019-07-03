@@ -1,22 +1,28 @@
 'use strict';
-function createError(reason, message, code) {
-  return Promise.reject({reason, message, code});
+function createError(code, message, reason) {
+  return Promise.reject({code, message, reason});
 }
 
-function handleError(err, res) {
-  console.error('=== ERROR ===\n', err);
+function handleError(res, error, log) {
+  console.error(log, error);
 
-  if (err.reason === 'validationError'){
-    return sendRes(res, err.code, err.message);
+  if (error.reason) {
+    const {reason, code, message} = error;
+    return sendRes(res, code, message, reason);
   };
 
-  return sendRes(res, 500, 'Something went wrong :(');
+  if (error.name === 'CastError') {
+    return res.status(400).json({message: error.message})
+  };
+
+  return sendRes(res, 500, 'Internal server error');
 };
 
-function sendRes(res, code, message) {
+function sendRes(res, code, message, reason) {
   const resMessage = {
     code,
-    message
+    message,
+    reason
   }
   return res.status(code).json(resMessage);
 }
