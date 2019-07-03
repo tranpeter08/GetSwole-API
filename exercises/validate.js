@@ -13,7 +13,7 @@ exports.validateExercise = function(req, res, next) {
     return res.status(400).json({message: 'Exercise name cannot be empty'});
   };
 
-  if (!correctUnits.includes(resistUnit)) {
+  if ('resistUnit' in req.body && !correctUnits.includes(resistUnit)) {
     return res.status(400).json({message: 'Incorrect resistance unit'});
   };
 

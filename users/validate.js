@@ -1,4 +1,5 @@
 'use strict';
+const {Profile} = require('./model');
 
 function validateUser(req, res, next) {
   function sendErrorMessage(code, reason, message, location) {
@@ -201,4 +202,19 @@ function validateProfile(req, res, next) {
   return next();
 };
 
-module.exports = { validateUser, validateProfile };
+function userExist(req, res, next) {
+  const {userId} = req.params;
+
+  return Profile
+    .findOne({userId})
+    .then(user => !user ? 
+      res.status(404).json({
+        message: 'User not found',
+        reason: 'validationError'
+      })
+      :
+      next()
+    );
+}
+
+module.exports = { validateUser, validateProfile, userExist };

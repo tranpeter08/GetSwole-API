@@ -5,7 +5,7 @@ const multer = require('multer');
 const { User, Profile } = require('./model');
 const { jwtAuth, createAuthToken } = require('../auth');
 const { validateUser, validateProfile } = require('./validate');
-const { createError, handleError, sendRes } = require('../utils');
+const { createError, handleError } = require('../utils');
 
 const router = express.Router();
 
@@ -114,13 +114,13 @@ router.get('/:userId/profile', jwtAuth, (req, res) => {
     .findOne({userId}, '-userId')
     .then(profile => {
       if (!profile) {
-        return sendRes(res, 404, 'profile not found');
+        return createError(404, 'Profile not found', 'validationErr');
       };
 
       return res.status(200).json(profile);
     })
     .catch(err => {
-      return handleError(err, res);
+      return handleError(res, err);
     });
 });
 
@@ -134,13 +134,13 @@ router.put('/:userId/profile', jwtAuth, validateProfile, (req, res) => {
     )
     .then(profile => {
       if (!profile) {
-        return sendRes(res, 404, 'Profile not found');
+        return createError(404, 'Profile not found', 'validationError');
       };
 
       return res.status(200).json({message: 'profile has been updated'});
     })
     .catch(err => {
-      return handleError(err, res);
+      return handleError(res, err);
     });
 });
 
