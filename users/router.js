@@ -9,10 +9,7 @@ const { createError, handleError, sendRes } = require('../utils');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  return res.send({message: 'hello world'});
-})
-
+// endpoint to be implemented in the future
 router.post('/upload', (req, res) => {
   const {image} = req.body;
 
@@ -53,7 +50,7 @@ router.post('/', validateUser, validateProfile, (req, res) => {
           location: ['email']
         })
       }
-      return User.find({username}).count()
+      return User.find({username}).countDocuments()
     })
     .then(count => {
       if (count > 0) {
@@ -83,10 +80,12 @@ router.post('/', validateUser, validateProfile, (req, res) => {
       return res.status(201).json({authToken});
     })
     .catch(err => {
-      if(err.reason === 'validationError') {
-        return res.status(err.code).json(err);
-      }
       console.error('=== ERROR ===\n', err);
+      
+      if (err.reason === 'validationError') {
+        return res.status(err.code).json(err);
+      };
+      
       return res.status(500).json({message: 'Internal server error'})
     });
 });
@@ -137,38 +136,6 @@ router.put('/profile/:userId/', jwtAuth, validateProfile, (req, res) => {
     .catch(err => {
       return handleError(err, res);
     });
-});
-
-router.post('/lost-credentials', (req, res) => {
-  const { username, email } = req.body;
-
-  if (!(username || email)) {
-    return sendRes(res, 400, 'invalid fields')
-  }
-
-  function newPasswordWith(field){
-    let query = req.body[field];
-    return User
-      .findOne({[field]:query})
-      .then(user => {
-        if (!user) {
-          return createError(
-            'validationError', 
-            `no account associated with this ${field}`,
-            404
-          )
-        };
-        let tempPassword = `${username}${Date.now()}${email}`
-        user.password = User.hashPassword(tempPassword);
-        user.save();
-        return res.status(200).json(user);
-      })
-      .catch(err => {
-        return handleError(err, res);
-      })
-  };
-
-  return username? newPasswordWith('username') : newPasswordWith('email');
 });
 
 module.exports = { router };

@@ -1,9 +1,9 @@
 'use strict';
 
 function validateUser(req, res, next) {
-  console.log('req body ===\n', req.body)
   function sendErrorMessage(code, reason, message, location) {
     if (location[0]) {
+      console.error({reason, message, location});
       return res.status(code).json({
         code,
         reason,
@@ -17,16 +17,18 @@ function validateUser(req, res, next) {
   const requiredFields = ['username', 'password', 'email']; 
   const missingFields = requiredFields.filter( field => !(field in req.body));
 
-  sendErrorMessage(
-    400, 
-    'ValidationError', 
-    'Missing required fields', 
-    missingFields
-  );
+  if (missingFields.length > 0) {
+   return sendErrorMessage(
+      400, 
+      'ValidationError', 
+      'Missing required fields', 
+      missingFields
+    );
+  };
 
   // validate Nonempty fields
-  const nonEmptyFields = ['password', 'username', 'email']
-  const emptyFields = nonEmptyFields.filter( field => 
+  const nonEmptyFields = ['password', 'username', 'email'];
+  const emptyFields = nonEmptyFields.filter(field => 
     req.body[field].trim() === ''
   );
 
@@ -39,7 +41,7 @@ function validateUser(req, res, next) {
 
   // validate trimmed fields
   const trimmedFields = ['username', 'password', 'email'];
-  const nonTrimmedFields = trimmedFields.filter(field => 
+  const nonTrimmedFields = trimmedFields.filter(field =>
     field in req.body && req.body[field].trim() !== req.body[field]
   );
 
@@ -84,6 +86,7 @@ function validateUser(req, res, next) {
 function validateProfile(req, res, next) {
   function sendErrorMessage(code, reason, message, location) {
     if (location[0]) {
+      console.log({reason, message, location})
       return res.status(code).json({
         code,
         reason,
@@ -92,6 +95,7 @@ function validateProfile(req, res, next) {
       });
     };
   };
+  
   // validate number fields
   const numberFields = ['height', 'inches', 'weight', 'bodyFat'];
   const nonNumberFields = numberFields.filter( field => 

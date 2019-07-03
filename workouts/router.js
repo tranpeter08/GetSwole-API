@@ -10,9 +10,16 @@ const router = express.Router({mergeParams: true});
 
 router.post('/', jwtAuth, (req, res) => {
   const {workoutName} = req.body;
+
+  if (!workoutName) {
+    return res.status(400).json({message: 'Workout name is required'});
+  };
+
   const _workoutName = workoutName.trim();
   const {userId} = req.params;
+
   let workoutRes;
+
   return Profile
     .findOne({userId})
     .populate('workouts')

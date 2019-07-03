@@ -40,7 +40,7 @@ router.get('/', jwtAuth, (req, res, next) => {
         links = body._links;
         body.hasNext = true;
         delete body._links;
-      }
+      };
 
       return res.json({...body});
     }

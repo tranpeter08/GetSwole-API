@@ -1,8 +1,6 @@
 'use strict';
 const chai = require('chai');
 const chaiHTTP = require('chai-http');
-const faker = require('faker');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const {app, runServer, closeServer} = require('../server');
@@ -35,7 +33,7 @@ describe('Auth endpoints', function() {
   });
 
   afterEach(function() {
-    return User.collection.drop();
+    return User.remove({});
   });
 
   describe('/auth/login', function() {
@@ -176,6 +174,4 @@ describe('Auth endpoints', function() {
       });
     });
   });
-
- 
 });
