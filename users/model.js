@@ -30,8 +30,7 @@ UserSchema.methods.serialize = function() {
 
 const ProfileSchema = mongoose.Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User',
+    type: String, 
     required: true
   },
   firstName: {
@@ -61,13 +60,7 @@ const ProfileSchema = mongoose.Schema({
   },
   bodyFat: {
     type: Number,
-  },
-  workouts: [
-    {
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'Workout'
-    }
-  ]
+  }
 });
 
 ProfileSchema.virtual('fullName').get(function() {

@@ -10,7 +10,7 @@ function handleError(err, res) {
     return sendRes(res, err.code, err.message);
   };
 
-  return sendRes(res, 500, 'Something went wrong :(');
+  return sendRes(res, 500, 'Internal server error');
 };
 
 function sendRes(res, code, message) {

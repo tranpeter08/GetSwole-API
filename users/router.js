@@ -39,6 +39,7 @@ router.post('/upload', (req, res) => {
 router.post('/', validateUser, validateProfile, (req, res) => {
   const {username, password, email, profile} = req.body;
   let authToken;
+
   return User
     .findOne({email})
     .then(user => {
@@ -106,31 +107,36 @@ router.put('/:userId', jwtAuth, (req, res) => {
 
 });
 
-router.get('/profile/:userId/', jwtAuth, (req, res) => {
+router.get('/:userId/profile', jwtAuth, (req, res) => {
+  const {userId} = req.params;
+
   return Profile
-    .findOne({userId: req.params.userId})
+    .findOne({userId}, '-userId')
     .then(profile => {
       if (!profile) {
-        return createError('validationError', 'profile not found', 404);
-      }
+        return sendRes(res, 404, 'profile not found');
+      };
+
       return res.status(200).json(profile);
     })
     .catch(err => {
-      if (err.name === 'CastError') {
-        return res.status(404).json({message: 'Profile not found.'});
-      }
-      return handleError(err, res)
-    })
-})
+      return handleError(err, res);
+    });
+});
 
-router.put('/profile/:userId/', jwtAuth, validateProfile, (req, res) => {
+router.put('/:userId/profile', jwtAuth, validateProfile, (req, res) => {
+  const {userId} = req.params;
 
   return Profile
     .findOneAndUpdate(
-      {userId: req.params.userId},
+      {userId},
       req.body
     )
-    .then(() => {
+    .then(profile => {
+      if (!profile) {
+        return sendRes(res, 404, 'Profile not found');
+      };
+
       return res.status(200).json({message: 'profile has been updated'});
     })
     .catch(err => {
