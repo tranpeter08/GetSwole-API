@@ -2,16 +2,14 @@
 
 const chai = require('chai');
 const chaiHTTP = require('chai-http');
-const faker = require('faker');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const {app, runServer, closeServer} = require('../server');
-const {User, Profile} = require('../users');
-const {Workout} = require('../workouts');
 const {Exercise} = require('../exercises');
 const {JWT_SECRET, TEST_DATABASE_URL, TEST_PORT} = require('../config');
-const {createUser, createWorkouts, clearDocuments, dropDB} = require('./utils-test');
+const {
+  createUser, createWorkouts, clearDocuments, dropDB
+} = require('./utils-test');
 
 const {expect} = chai;
 
