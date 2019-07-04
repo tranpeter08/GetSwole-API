@@ -10,6 +10,7 @@ function response(message) {
 
 exports.validateWorkout = function(req, res, next) {
   const {workoutName} = req.body;
+
   if (!workoutName) {
     return res.status(400).json(response('Workout name is required'));
   }

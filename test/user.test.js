@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const {app, runServer, closeServer} = require('../server');
 const {User} = require('../users');
 const {JWT_SECRET, TEST_DATABASE_URL, TEST_PORT} = require('../config');
+const {dropDB} = require('./utils-test');
 
 const {expect} = chai;
 
@@ -23,7 +24,7 @@ describe('users endpoints', function() {
   });
 
   after(function() {
-    return closeServer();
+    return dropDB(), closeServer();
   });
 
   describe('/users', function() {

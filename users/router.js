@@ -51,7 +51,9 @@ router.post('/', validateUser, validateProfile, (req, res) => {
           location: ['email']
         })
       }
-      return User.find({username}).countDocuments()
+      return User
+        .find({username})
+        .countDocuments()
     })
     .then(count => {
       if (count > 0) {
@@ -120,7 +122,7 @@ router.get('/:userId/profile', jwtAuth, (req, res) => {
       return res.status(200).json(profile);
     })
     .catch(err => {
-      return handleError(res, err);
+      return handleError(res, err, 'GET PROFILE ERROR');
     });
 });
 

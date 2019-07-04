@@ -1,18 +1,20 @@
 'use strict';
+
+const mongoose = require('mongoose');
+
 function createError(code, message, reason) {
   return Promise.reject({code, message, reason});
 }
 
-function handleError(res, error, log) {
+function handleError(res, error, log = 'ERROR') {
   console.error(log, error);
+  if (error instanceof mongoose.Error.CastError) {
+    return res.status(400).json({message: 'Invalid Object Id'})
+  };
 
   if (error.reason) {
     const {reason, code, message} = error;
     return sendRes(res, code, message, reason);
-  };
-
-  if (error.name === 'CastError') {
-    return res.status(400).json({message: error.message})
   };
 
   return sendRes(res, 500, 'Internal server error');

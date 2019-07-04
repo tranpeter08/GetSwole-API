@@ -40,8 +40,9 @@ function createUser(username, profile) {
 };
 
 function tearDownDb() {
+  console.log('tearing down database...');
   return mongoose.connection.dropDatabase();
-}
+};
 
 describe('profile endpoints', function() {
   before(function() {
@@ -52,11 +53,11 @@ describe('profile endpoints', function() {
     return closeServer();
   });
 
-  describe('/users', function() {
+  describe('/users POST method', function() {
     const password = 'fakePassword';
   
     afterEach(function() {
-      return User.remove({}), Profile.remove({}), tearDownDb();
+      return User.deleteMany({}), Profile.deleteMany({}), tearDownDb();
     });
   
     it('rejects a request with incorrect field value', function() {
@@ -65,7 +66,7 @@ describe('profile endpoints', function() {
       
       const profile = {
         firstName: 'firstName',
-        height: 5,
+        height: "5",
         heightUnit: 'kg'
       };
 
@@ -95,9 +96,9 @@ describe('profile endpoints', function() {
     });
   });
 
-  describe('/profile/:userId', function() {
+  describe('/:userId/profile', function() {
     const username = 'fakeUsername0';
-    let url = '/users/profile/';
+    let url = '/users/';
     let userId;
     let token;
 
@@ -106,8 +107,8 @@ describe('profile endpoints', function() {
     });
   
     afterEach(function() {
-      url = '/users/profile/';
-      return User.remove({}), Profile.remove({}), tearDownDb();
+      url = '/users/';
+      return User.deleteMany({}), Profile.deleteMany({}), tearDownDb();
     });
 
     describe('GET method', function() {
@@ -116,8 +117,10 @@ describe('profile endpoints', function() {
 
         return User.findOne({username})
           .then(({_id}) => {
-            url+= _id;
-            return chai.request(app).get(url);
+            url+= `${_id}/profile`;
+            return chai.request(app)
+              .get(url);
+              set('Authorization' , 'Bearer');
           })
           .then(res => {
             expect(res).to.have.status(401);
@@ -130,7 +133,7 @@ describe('profile endpoints', function() {
           .then(({_id}) => {
             userId = _id;
             token = createToken(username, userId);
-            url+= _id;
+            url+= `${_id}/profile`;
   
             return chai.request(app)
               .get(url)
@@ -148,13 +151,13 @@ describe('profile endpoints', function() {
 
         return User.findOne({username})
           .then(({_id}) => {
-            url+= _id;
+            url+= `${_id}/profile`;
             return chai.request(app)
               .put(url);
           })
           .then(res => {
             expect(res).to.have.status(401);
-          })
+          });
       });
   
       it('returns an updated profile on success', function() {
@@ -164,7 +167,7 @@ describe('profile endpoints', function() {
           .then(({_id}) => {
             userId = _id;
             token = createToken(username, userId);
-            url+= _id;
+            url+= `${_id}/profile`;
   
             return chai.request(app)
               .put(url)

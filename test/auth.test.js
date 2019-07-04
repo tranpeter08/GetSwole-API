@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const {app, runServer, closeServer} = require('../server');
 const {User} = require('../users');
 const {JWT_SECRET, TEST_DATABASE_URL, TEST_PORT} = require('../config');
+const {dropDB} = require('./utils-test');
 
 const {expect} = chai;
 
@@ -33,7 +34,7 @@ describe('Auth endpoints', function() {
   });
 
   afterEach(function() {
-    return User.remove({});
+    return User.deleteMany({}), dropDB();
   });
 
   describe('/auth/login', function() {

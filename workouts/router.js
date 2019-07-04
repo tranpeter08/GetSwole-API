@@ -57,11 +57,16 @@ router.put('/:workoutId', jwtAuth, userExist, validateWorkout, (req, res) => {
     .find({userId})
     .then(results => {
       const sameName = results.find(item => 
-        item._id !== workoutId && item.workoutName === workoutName
+        item.workoutName === workoutName && 
+        item._id.toString() !== workoutId
       );
 
       if (sameName) {
-        return createError(400, `Workout "${workoutName}" already exists.`)
+        return createError(
+          400, 
+          `Workout "${workoutName}" already exists`,
+          'validationError'  
+        )
       };
 
       return Workout
@@ -75,6 +80,10 @@ router.put('/:workoutId', jwtAuth, userExist, validateWorkout, (req, res) => {
       return res.status(200).json({message: 'Workout updated'});
     })
     .catch(error => {
+      if (error instanceof mongoose.Error.CastError) {
+        return res.status(400).json({message: 'Invalid workout ID'})
+      };
+
       return handleError(res, error, 'UPDATE WORKOUT ERROR')
     });
 });

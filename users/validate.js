@@ -1,5 +1,7 @@
 'use strict';
-const {Profile} = require('./model');
+const {User, Profile} = require('./model');
+const mongoose = require('mongoose');
+const {sendRes} = require('../utils');
 
 function validateUser(req, res, next) {
   function sendErrorMessage(code, reason, message, location) {
@@ -205,8 +207,8 @@ function validateProfile(req, res, next) {
 function userExist(req, res, next) {
   const {userId} = req.params;
 
-  return Profile
-    .findOne({userId})
+  return User
+    .findById(userId)
     .then(user => !user ? 
       res.status(404).json({
         message: 'User not found',
@@ -214,7 +216,14 @@ function userExist(req, res, next) {
       })
       :
       next()
-    );
+    )
+    .catch(error => {
+      if (error instanceof mongoose.Error.CastError) {
+        return sendRes(res, 400, 'Invalid user ID')      
+      };
+
+      return sendRes(res, 500, 'Internal server error');
+    });
 }
 
 module.exports = { validateUser, validateProfile, userExist };

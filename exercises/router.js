@@ -20,8 +20,8 @@ const workoutExist = (req, res, next) => {
     )
     .catch(err => {
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(400).json({message: 'Invalid workout Id'})
-      }
+        return res.status(400).json({message: 'Invalid workout ID'})
+      };
 
       return handleError(res, err, 'EXERCISE MIDDLEWARE ERROR')
     });
@@ -61,20 +61,6 @@ router.post('/', middlewares, (req, res) => {
     });
 });
 
-// router.get('/:exerciseId', middlewares, (req, res) => {
-//   return Exercise
-//     .findById(req.params.exerciseId)
-//     .then(exercise => {
-//       if(!exercise){
-//         return createError('validationError', 'exercise not found', 404);
-//       }
-//       return res.status(200).json(exercise);
-//     })
-//     .catch(err => {
-//       return handleError(err, res);
-//     });
-// });
-
 router.get('/', middlewaresGet, (req, res) => {
   const {workoutId} = req.params;
   return Exercise
@@ -93,7 +79,8 @@ router.put('/:exerciseId', middlewares, (req, res) => {
     .find({workoutId})
     .then(results => {
       const sameName = results.find(item => 
-        item._id !== exerciseId && item.exerciseName === exerciseName
+        item._id !== exerciseId && 
+        item.exerciseName.toString() === exerciseName
       );
 
       if (sameName) {
