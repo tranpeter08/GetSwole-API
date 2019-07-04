@@ -18,7 +18,8 @@ router.get('/', jwtAuth, (req, res, next) => {
   };
 
   const options = {
-    qs: searchQuery
+    qs: searchQuery,
+    json: true
   };
 
   request.get(

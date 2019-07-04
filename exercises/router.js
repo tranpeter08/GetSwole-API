@@ -43,7 +43,7 @@ router.post('/', middlewares, (req, res) => {
   const data = {...req.body, workoutId};
 
   return Exercise
-    .findOne({exerciseName})
+    .findOne({exerciseName, workoutId})
     .countDocuments()
     .then(count => count > 0 ?
       createError(
@@ -79,8 +79,8 @@ router.put('/:exerciseId', middlewares, (req, res) => {
     .find({workoutId})
     .then(results => {
       const sameName = results.find(item => 
-        item._id !== exerciseId && 
-        item.exerciseName.toString() === exerciseName
+        item._id.toString() !== exerciseId && 
+        item.exerciseName === exerciseName
       );
 
       if (sameName) {
