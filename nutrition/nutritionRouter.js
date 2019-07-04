@@ -18,7 +18,6 @@ router.get('/', jwtAuth, (req, res, next) => {
   };
 
   const options = {
-    json: true,
     qs: searchQuery
   };
 
@@ -28,8 +27,11 @@ router.get('/', jwtAuth, (req, res, next) => {
     (err, resp, body) => {
 
       if (err) {
-        console.log('Edamam Error: \n', err)
-       return res.status(500).json({message: 'Internal Server Error'});
+        console.error('Edamam Error: \n', err)
+       return res.status(err.status).json({
+         message: 'Edamam error', 
+         error: err
+        });
       };
 
       if (resp.statusCode !== 200) {
