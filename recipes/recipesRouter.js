@@ -74,6 +74,10 @@ router.post('/:username/test', jwtAuth, (req, res) => {
 
 router.post('/:username', jwtAuth, (req, res) => {
   const {params: {username}, body: {uri}} = req;
+  if (!username) {
+    return res.status(400).json({message: 'username required in path'});
+  }
+
   return Recipe.findOne({uri, username})
     .count()
     .then(count => count > 0 ? 
@@ -91,7 +95,7 @@ router.delete('/:username', jwtAuth, (req, res) => {
     .then(item => !item ? 
       res.status(404).json({message: 'Recipe not found.'})
       : 
-      res.status(200).json(item)
+      res.status(200).json({message: 'Recipe deleted'})
     )
     .catch(error => res.json(error))
 });

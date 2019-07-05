@@ -95,7 +95,7 @@ router.put('/:exerciseId', middlewares, (req, res) => {
         .findByIdAndUpdate(exerciseId, req.body)
     })
     .then(result => result ? 
-      res.status(200).json(result) :
+      res.status(200).json({message: 'Exercise updated'}) :
       createError(404, 'Exercise not found', 'validationError')
     )
     .catch(error => {
