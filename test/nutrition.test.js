@@ -54,9 +54,9 @@ describe('Nutrition end points', function() {
       const ingr = 'eggs'
       beforeEach(function() {
         return nock(
-            'https://api.edamam.com/api/food-database/parser'
+            'https://api.edamam.com'
           )
-          .get(url)
+          .get('/api/food-database/parser')
           .query({
             app_id: EDAMAM_NUTRITION_ID,
             app_key: EDAMAM_NUTRITION_KEY,
@@ -73,16 +73,16 @@ describe('Nutrition end points', function() {
           })
       });
 
-      // it('successfully fetches data from Edamam', function() {
-      //   return chai.request(app)
-      //     .get(url)
-      //     .query({ingr})
-      //     .set(headerField, headerVal)
-      //     .then(res => {
-      //       console.log(res.body)
-      //       expect(res).to.have.status(200);
-      //     })
-      // });
+      it('successfully fetches data from Edamam', function() {
+        return chai.request(app)
+          .get(url)
+          .query({ingr})
+          .set(headerField, headerVal)
+          .then(res => {
+            console.log('NOCK RESP', res.body)
+            expect(res).to.have.status(200);
+          })
+      });
     });
   });
 });
